@@ -17,25 +17,26 @@ ls node_modules\typescript\lib\tsserver.js
 
 `tsserver` listens on `stdin` and writes messages back to `stdout`. 
 
-Requests are JSON following the protocol definition. Here is an example request to open a file `c:/DefinitelyTyped/gregorian-calendar/index.d.ts`:
+Requests are JSON following the protocol definition, except that each request must be on a single line. For example, here are two requests — the first asks the server to open a file, and the second asks for quickinfo at line 9, column 11 of the file:
 
 ```js
-{"seq":1,"type":"quickinfo","command":"open","arguments":{"file":"c:/DefinitelyTyped/gregorian-calendar/index.d.ts"}}
+{"seq":0,"type":"request","command":"open","arguments":{"file":"c:/DefinitelyTyped/gregorian-calendar/index.d.ts"}}
+{"seq":1,"type":"request","command":"quickinfo","arguments":{"file":"c:/DefinitelyTyped/gregorian-calendar/index.d.ts","line":9,"offset":11}}
 ```
 
-Responses are augmented JSON format. the Message stars with a header with the content length followed by a line separator (`\r\n`) followed by the response body as a JSON string:
+Responses are augmented JSON format. The response starts with a header with the content length followed by a line separator (`\r\n`) followed by the response body as a JSON string.
 
-Here is an example of a response for a `quickinfo` command:
+Here is an example of a response for the `quickinfo` request from above:
 
 ```js
-Content-Length: 116
+Content-Length: 262
 
-{"seq":0,"type":"response","command":"quickinfo","request_seq":2,"success":false,"message":"No content available."}
+{"seq":0,"type":"response","command":"quickinfo","request_seq":1,"success":true,"body":{"kind":"class","kindModifiers":"declare","start":{"line":9,"offset":11},"end":{"line":9,"offset":28},"displayString":"class GregorianCalendar","documentation":"","tags":[]}}
 ```
 
 Similarly events have the same format as a response. 
 
-Here is an example event for error message:
+Here is an example event for an error message:
 
 ```js
 Content-Length: 261
